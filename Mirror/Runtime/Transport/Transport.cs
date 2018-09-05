@@ -1,6 +1,8 @@
 ﻿// transport layer backend
 // - set to telepathy by default
 // - can be changed by assigning Transport.layer to whatever you want
+using System;
+
 namespace Mirror
 {
     // Transport class used by HLAPI ///////////////////////////////////////////
@@ -23,6 +25,7 @@ namespace Mirror
         void ClientConnect(string address, int port);
         bool ClientSend(byte[] data);
         bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
+        bool ClientGetNextMessage(out TransportEvent transportEvent, out ArraySegment<byte> data);
         float ClientGetRTT();
         void ClientDisconnect();
 
@@ -32,6 +35,7 @@ namespace Mirror
         void ServerStartWebsockets(string address, int port, int maxConnections);
         bool ServerSend(int connectionId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
+        bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out ArraySegment<byte> data);
         bool GetConnectionInfo(int connectionId, out string address);
         void ServerStop();
 

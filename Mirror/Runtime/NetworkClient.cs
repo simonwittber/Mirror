@@ -177,7 +177,7 @@ namespace Mirror
             // -> calling it once per frame is okay, but really why not just
             //    process all messages and make it empty..
             TransportEvent transportEvent;
-            byte[] data;
+            ArraySegment<byte> data;
             while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
             {
                 switch (transportEvent)

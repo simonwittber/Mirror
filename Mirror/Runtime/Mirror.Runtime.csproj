@@ -98,10 +98,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\..\..\Telepathy\Telepathy\Telepathy.csproj">
+      <Link>Telepathy.csproj</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Telepathy\Telepathy\Telepathy.csproj">
+      <Project>{1D55A635-BC4E-4DDE-8D9A-044956F75A24}</Project>
+      <Name>Telepathy</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
-  <Target Name="AfterBuild" DependsOnTargets="AfterBuildEditor;AfterBuildStandalone" >
+  <Target Name="AfterBuild" DependsOnTargets="AfterBuildEditor;AfterBuildStandalone">
       <Copy SourceFiles="$(TargetDir)Telepathy.dll" DestinationFiles="$(ProjectDir)..\Output\Telepathy.dll" />
   </Target>
 

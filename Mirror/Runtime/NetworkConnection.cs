@@ -208,14 +208,14 @@ namespace Mirror
         //       -> in other words, we always receive 1 message per Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer)
+        protected void HandleBytes(ArraySegment<byte> buffer)
         {
             // unpack message
             ushort msgType;
-            byte[] content;
+            ArraySegment<byte> content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content)); }
+                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content.Array)); }
 
                 NetworkMessageDelegate msgDelegate;
                 if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
@@ -235,6 +235,7 @@ namespace Mirror
                     else
                     {
                         msgDelegate(msg);
+                        Telepathy.ByteArrayPool.Return(content.Array);
                     }
                     lastMessageTime = Time.time;
                 }
@@ -246,7 +247,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer)); }
+                if (LogFilter.logError) { Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer.Array)); }
             }
         }
 
@@ -283,9 +284,9 @@ namespace Mirror
             m_VisList.Clear();
         }
 
-        public virtual void TransportReceive(byte[] bytes)
+        public virtual void TransportReceive(ArraySegment<byte> data)
         {
-            HandleBytes(bytes);
+            HandleBytes(data);
         }
 
         public virtual bool TransportSend(byte[] bytes, out byte error)

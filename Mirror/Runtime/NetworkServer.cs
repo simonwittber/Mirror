@@ -363,7 +363,7 @@ namespace Mirror
 
             int connectionId;
             TransportEvent transportEvent;
-            byte[] data;
+            ArraySegment<byte> data;
             while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
             {
                 switch (transportEvent)
@@ -461,7 +461,7 @@ namespace Mirror
             return s_Connections[connectionId];
         }
 
-        static void HandleData(int connectionId, byte[] data, byte error)
+        static void HandleData(int connectionId, ArraySegment<byte> data, byte error)
         {
             var conn = FindConnection(connectionId);
             if (conn == null)
@@ -473,7 +473,7 @@ namespace Mirror
             OnData(conn, data);
         }
 
-        static void OnData(NetworkConnection conn, byte[] data)
+        static void OnData(NetworkConnection conn, ArraySegment<byte> data)
         {
             conn.TransportReceive(data);
         }

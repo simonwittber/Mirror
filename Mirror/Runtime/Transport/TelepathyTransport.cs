@@ -1,4 +1,5 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
+using System;
 using UnityEngine;
 namespace Mirror
 {
@@ -26,6 +27,7 @@ namespace Mirror
         public bool ClientConnected() { return client.Connected; }
         public void ClientConnect(string address, int port) { client.Connect(address, port); }
         public bool ClientSend(byte[] data) { return client.Send(data); }
+        [Obsolete("use public bool ClientGetNextMessage(out TransportEvent transportEvent, out ArraySegment<byte> data)")]
         public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
@@ -50,6 +52,30 @@ namespace Mirror
             data = null;
             return false;
         }
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            Telepathy.Message message;
+            if (client.GetNextMessage(out message))
+            {
+                // convert Telepathy EventType to TransportEvent
+                if (message.eventType == Telepathy.EventType.Connected)
+                    transportEvent = TransportEvent.Connected;
+                else if (message.eventType == Telepathy.EventType.Data)
+                    transportEvent = TransportEvent.Data;
+                else if (message.eventType == Telepathy.EventType.Disconnected)
+                    transportEvent = TransportEvent.Disconnected;
+                else
+                    transportEvent = TransportEvent.Disconnected;
+
+                // assign rest of the values and return true
+                data = message.segment;
+                return true;
+            }
+
+            transportEvent = TransportEvent.Disconnected;
+            data = default(ArraySegment<byte>);
+            return false;
+        }
         public float ClientGetRTT() { return 0; } // TODO
         public void ClientDisconnect() { client.Disconnect(); }
 
@@ -61,6 +87,7 @@ namespace Mirror
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
         public bool ServerSend(int connectionId, byte[] data) { return server.Send(connectionId, data); }
+        [Obsolete("use public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out ArraySegment<byte> data)")]
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
@@ -85,6 +112,32 @@ namespace Mirror
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
             data = null;
+            return false;
+        }
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            Telepathy.Message message;
+            if (server.GetNextMessage(out message))
+            {
+                // convert Telepathy EventType to TransportEvent
+                if (message.eventType == Telepathy.EventType.Connected)
+                    transportEvent = TransportEvent.Connected;
+                else if (message.eventType == Telepathy.EventType.Data)
+                    transportEvent = TransportEvent.Data;
+                else if (message.eventType == Telepathy.EventType.Disconnected)
+                    transportEvent = TransportEvent.Disconnected;
+                else
+                    transportEvent = TransportEvent.Disconnected;
+
+                // assign rest of the values and return true
+                connectionId = message.connectionId;
+                data = message.segment;
+                return true;
+            }
+
+            connectionId = -1;
+            transportEvent = TransportEvent.Disconnected;
+            data = default(ArraySegment<byte>);
             return false;
         }
         public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }

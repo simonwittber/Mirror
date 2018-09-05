@@ -143,6 +143,10 @@ namespace Mirror
             //Debug.Log("LLAPITransport.ClientGetNextMessage: clientid=" + clientId + " connid=" + connectionId + " event=" + networkEvent + " data=" + BitConverter.ToString(data) + " error=" + error);
             return true;
         }
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            throw new NotImplementedException();
+        }
 
         public float ClientGetRTT()
         {
@@ -256,6 +260,11 @@ namespace Mirror
             serverHostId = -1;
             clientConnectionId = -1;
             Debug.Log("LLAPITransport.Shutdown");
+        }
+
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

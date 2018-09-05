@@ -1,6 +1,7 @@
 ﻿// multiplex transport that uses either:
 // * Telepathy for standalone (windows/mac/linux/mobile/etc.)
 // * UNET's LLAPI for websockets
+using System;
 using UnityEngine;
 namespace Mirror
 {
@@ -44,6 +45,10 @@ namespace Mirror
         {
             return client.ClientGetNextMessage(out transportEvent, out data);
         }
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            return client.ClientGetNextMessage(out transportEvent, out data);
+        }
         public float ClientGetRTT()
         {
             return client.ClientGetRTT();
@@ -81,6 +86,13 @@ namespace Mirror
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
             data = null;
+            return server != null ? server.ServerGetNextMessage(out connectionId, out transportEvent, out data) : false;
+        }
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out ArraySegment<byte> data)
+        {
+            connectionId = -1;
+            transportEvent = TransportEvent.Disconnected;
+            data = default(ArraySegment<byte>);
             return server != null ? server.ServerGetNextMessage(out connectionId, out transportEvent, out data) : false;
         }
 
